@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 public class MessageDAO {
     
+    //retrieves all messages in database
     public List<Message> getAllMessages(){
         Connection connection = ConnectionUtil.getConnection();
         List<Message> messages = new ArrayList<>();
@@ -33,6 +34,7 @@ public class MessageDAO {
         return messages;
     }
 
+    //persists message into database
     public Message createMessage(Message message){
         Connection connection = ConnectionUtil.getConnection();
         try{
@@ -53,6 +55,7 @@ public class MessageDAO {
         return null;
     }
 
+    //gets message by ID, returns null if no message was found
     public Message getMessageById(int id){
         Connection connection = ConnectionUtil.getConnection();
         try{
@@ -73,8 +76,21 @@ public class MessageDAO {
         return null;
     }
 
-    public Message deleteMessageById(int id){
-        return null;
+    //deletes message by id, returns true if message is deleted, false if it did not exist/wasn't deleted
+    public boolean deleteMessageById(int id){
+        Connection connection = ConnectionUtil.getConnection();
+        try{
+        String sql = "DELETE FROM message WHERE message_id = ?";
+        PreparedStatement ps = connection.prepareStatement(sql);
+        ps.setInt(1, id);
+        int affectedRows = ps.executeUpdate();
+        if(affectedRows > 0){
+            return true;
+        }
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return false;
     }
 
     public Message updateMessage(int id){

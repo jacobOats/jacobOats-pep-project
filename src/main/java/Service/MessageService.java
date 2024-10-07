@@ -25,7 +25,7 @@ public class MessageService {
 
     public Message createMessage(Message message){
         Message insertedMessage = messageDAO.createMessage(message);
-        if(insertedMessage != null){
+        if(insertedMessage != null){ //message did not exist in database
             return insertedMessage;
         }
         return null;
@@ -33,12 +33,16 @@ public class MessageService {
 
     public Message getMessageById(int id){
         Message message = messageDAO.getMessageById(id);
-        if(message != null)
+        if(message != null) //message was found
             return message;
         return null;
     }
 
     public Message deleteMessageById(int id){
+        Message message = messageDAO.getMessageById(id);
+        if(message != null && messageDAO.deleteMessageById(id)){ //message was found and deleted
+            return message;
+        }
         return null;
     }
 
