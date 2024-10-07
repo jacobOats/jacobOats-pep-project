@@ -9,6 +9,8 @@ import io.javalin.http.Context;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.List;
+
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller. The endpoints you will need can be
  * found in readme.md as well as the test cases. You should
@@ -34,6 +36,9 @@ public class SocialMediaController {
         app.get("example-endpoint", this::exampleHandler);
         app.post("/register", this::registerAccountHandler);
         app.post("/login", this::loginAccountHandler);
+        app.post("/messages", this::postMessageHandler);
+        app.get("/messages", this::getAllMessagesHandler);
+        app.get("/messages/{message_id}", this::getMessageByIdHandler);
         return app;
     }
 
@@ -68,25 +73,53 @@ public class SocialMediaController {
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
         Account accountReturned = accountService.login(account);
+        //check if account was not found, or did not match credentials
         if(accountReturned == null || !(accountReturned.getUsername().equals(account.getUsername()))
                     || !(accountReturned.getPassword().equals(account.getPassword()))){
             context.status(401);
-        }else{
+        }else{ //user credentials match
             context.status(200);
             context.json(accountReturned);
         }
     }
 
-    private void postMessageHandler(Context context){
-
+    private void postMessageHandler(Context context) throws JsonProcessingException{
+        ObjectMapper mapper = new ObjectMapper();
+        Message message = mapper.readValue(context.body(), Message.class);
+        //check if message is empty or greater than 255
+        if(message.getMessage_text().length() < 1 || message.getMessage_text().length() > 255){
+            context.status(400);
+        }else{
+            //check account is a real account in database
+            Account account = accountService.getAccountById(message.getPosted_by());
+            if(account == null || account.getAccount_id() != message.getPosted_by()){
+                context.status(400);
+            }else{
+                Message insertedMessage = messageService.createMessage(message);
+                if(insertedMessage == null){//check if insertion occured
+                    context.status(400);
+                }else{ //message inserted successfully
+                    context.status(200);
+                    context.json(insertedMessage);
+                }
+            }
+        }
     }
 
     private void getAllMessagesHandler(Context context){
-
+        List<Message> messages = messageService.getAllMessages();
+        context.json(messages);
     }
 
     private void getMessageByIdHandler(Context context){
-
+        int id = Integer.parseInt(context.pathParam("message_id"));
+        Message message = messageService.getMessageById(id);
+        if(message != null){
+            context.status(200);
+            context.json(message);
+        }else{
+            context.json("");
+        }
     }
 
     private void deleteMessageByIdHandler(Context context){

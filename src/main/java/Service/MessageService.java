@@ -19,14 +19,22 @@ public class MessageService {
     }
 
     public List<Message> getAllMessages(){
-        return null;
+        List<Message> messages = messageDAO.getAllMessages();
+        return messages;
     }
 
     public Message createMessage(Message message){
+        Message insertedMessage = messageDAO.createMessage(message);
+        if(insertedMessage != null){
+            return insertedMessage;
+        }
         return null;
     }
 
     public Message getMessageById(int id){
+        Message message = messageDAO.getMessageById(id);
+        if(message != null)
+            return message;
         return null;
     }
 
