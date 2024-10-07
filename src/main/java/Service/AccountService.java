@@ -27,6 +27,10 @@ public class AccountService {
     }
 
     public Account login(Account account){
+        Account databaseAccount = accountDAO.login(account);
+        if(databaseAccount != null){
+            return databaseAccount;
+        }
         return null;
     }
 }
