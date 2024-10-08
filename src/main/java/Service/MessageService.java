@@ -46,11 +46,17 @@ public class MessageService {
         return null;
     }
 
-    public Message updateMessage(int id){
+    public Message updateMessage(int id, String messageText){
+        Message message = messageDAO.getMessageById(id);
+        if(message != null && messageDAO.updateMessage(id, messageText)){ //message found and updated
+            message.setMessage_text(messageText);
+            return message;
+        }
         return null;
     }
     
     public List<Message> getAllMessageByAccountId(int accountId){
-        return null;
+        List<Message> messages = messageDAO.getAllMessageByAccountId(accountId);
+        return messages;
     }
 }
